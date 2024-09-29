@@ -38,7 +38,6 @@ function Type({ types }) {
     <span className="font-bold">Type</span>
     {types.join("/")}
   </span>;
-
 }
 
 export default function PokeDetailsModal({ isOpen, closeModalCallback }) {

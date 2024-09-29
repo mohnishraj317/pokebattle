@@ -3,6 +3,8 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { usePokeCard } from "../contexts/usePokeCard";
 
+import WinnerScreen from "./WinnerScreen"
+
 function calculateDamage({
   level, attack, defense,
   power, effectiveness, accuracy,
@@ -18,32 +20,32 @@ function calculateDamage({
   accuracy ||= 0;
   power ||= 0
 
-  return ((2*level/5 + 2) * (attack/defense) * power * effectiveness * (accuracy/100) * speed / 100);
+  return ((2*level/5 + 2) * (attack/defense) * power * effectiveness * (accuracy/10) * speed / 100);
 }
 
 function chooseRandomMove(moves) {
   return moves[Math.floor(Math.random() * moves.length)]?.move
 }
-
-function transformDamageRelations(dmgRels) {
-  const keymaps = {
-    "double_damage_to": 2,
-    "half_damage_to": 1/2,
-    "no_damage_to": 0
-  };
-
-  const rels = Object.entries(dmgRels)
-        .filter(([k, v]) => /_to$/.test(k))
-        .map(([k, v]) => {
-          const key = keymaps[k];
-          const value = v.map(({ name }) => name);
-
-          return [key, value]
-        });
-
-  return Object.fromEntries(rels);
-}
-
+//
+//function transformDamageRelations(dmgRels) {
+//  const keymaps = {
+//    "double_damage_to": 2,
+//    "half_damage_to": 1/2,
+//    "no_damage_to": 0
+//  };
+//
+//  const rels = Object.entries(dmgRels)
+//        .filter(([k, v]) => /_to$/.test(k))
+//        .map(([k, v]) => {
+//          const key = keymaps[k];
+//          const value = v.map(({ name }) => name);
+//
+//          return [key, value]
+//        });
+//
+//  return Object.fromEntries(rels);
+//}
+//
 function getEffectiveness(types, dmgrel) {
   const effectiveness = [];
   const keys = {
@@ -63,7 +65,7 @@ function getEffectiveness(types, dmgrel) {
     }
   })
 
-  return Math.max(...effectiveness);
+  return effectiveness;
 }
 
 export default function BattleField() {
@@ -101,12 +103,14 @@ export default function BattleField() {
     damage_relations: [],
   }
 
+  const [winner, setWinner] = useState({});
+
   useEffect(() => {
     const movesEndpoints = [
       poke1Stats.move.url,
       poke2Stats.move.url,
-      //...(poke1Stats.types.map(({ url }) => url)),
-      //...(poke2Stats.types.map(({ url }) => url)),
+      ...(poke1Stats.types.map(({ url }) => url)),
+      ...(poke2Stats.types.map(({ url }) => url)),
     ];
 
     axios.all(movesEndpoints.map(endpoint => axios.get(endpoint)))
@@ -116,23 +120,40 @@ export default function BattleField() {
 
         poke1Stats.power = res[0].data.power ?? 0;
         poke2Stats.power = res[1].data.power ?? 0;
+
+        const eff1 = [];
+        const eff2 = [];
+
+        for (let i = 2; i < poke1Stats.types.length + 2; i++) {
+          const dmgrel = res[i].data.damage_relations;
+          const eff = getEffectiveness(poke2Stats.types, dmgrel);
+
+          eff1.push(...eff);
+        }
+
+        for (let i = poke1Stats.types.length 
+          + 2; i < poke1Stats.types.length + poke2Stats.types.length + 2; i++) {
+          const dmgrel = res[i].data.damage_relations;
+          const eff = getEffectiveness(poke1Stats.types, dmgrel);
+
+          eff2.push(...eff);
+        }
+
+        poke1Stats.effectiveness = Math.max(...eff1);
+        poke2Stats.effectiveness = Math.max(...eff2);
+
+        poke1Stats.damage = calculateDamage({ ...poke1Stats });
+        poke2Stats.damage = calculateDamage({ ...poke2Stats });
+        
+        poke1Stats.name = "player 1";
+        poke2Stats.name = "player 2";
+
+        if (poke1Stats.damage > poke2Stats.damage) setWinner(poke1Stats);
+        else 
+          //(poke2Stats.damage > poke1Stats.damage)
+        setWinner(poke2Stats);
+
       }).catch(console.error);
-
-    const typesEndpoints = [...(poke1Stats.types.map(({ url }) => url)), ...(poke2Stats.types.map(({ url }) => url))];
-
-    axios.all(typesEndpoints.map(endpoint => axios.get(endpoint)))
-      .then(res => {
-        const dmgrel1 = res[0].data.damage_relations;
-        const dmgrel2 = res[1].data.damage_relations;
-
-        const eff1 = getEffectiveness(poke2Stats.types, dmgrel1);
-        const eff2 = getEffectiveness(poke1Stats.types, dmgrel2);
-  
-        poke1Stats.effectiveness = eff1;
-        poke2Stats.effectiveness = eff2;
-
-        console.log(calculateDamage({ ...poke1Stats }))
-      });
 
     return () => {
       poke1Stats.effectiveness = 0;
@@ -142,8 +163,7 @@ export default function BattleField() {
     }
   }, []);
 
-  poke1Stats.damage = calculateDamage({ ...poke1Stats });
-  poke2Stats.damage = calculateDamage({ ...poke2Stats });
+  if (winner.name) return <WinnerScreen data={winner} looserdata={winner.name === poke2Stats.name ? poke1Stats : poke2Stats} />
   
   return <div className="bg-red-300 p-4">
     Hello
