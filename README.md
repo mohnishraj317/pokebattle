@@ -1,4 +1,4 @@
-Deployement : [Deployed at](https://github.com/mohnishraj317/pokebattle/deployments/github-pages)
+Deployement : [Deployed at](https://mohnishraj317.github.io/pokebattle/)
 
 ---
 # **Task 1: Display Pokémon Cards**
