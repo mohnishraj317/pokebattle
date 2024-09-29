@@ -2,6 +2,8 @@ import { useState, useEffect } from  "react";
 
 import PokeCard from "./components/PokeCard";
 import PokeDetailsModal from "./components/PokeDetailsModal";
+import BattleButton from "./components/BattleButton";
+import BattleField from "./components/BattleField";
 
 import { PokeCardProvider } from "./contexts/usePokeCard";
 
@@ -70,13 +72,21 @@ const pokemons = [
 
 export default function App() {
   const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [mode, setMode] = useState("choose"); // choose, battle
 
   function openDetailModal() { setDetailModalOpen(true) }
-
-  return <div className="grid lg:grid-cols-5 md:grid-cols-3 grid-cols-2 gap-4 p-4">
-    <PokeCardProvider>
-      {pokemons.map(pokemon => <PokeCard onClick={openDetailModal} key={pokemon.name} {...pokemon} />)}
-      <PokeDetailsModal isOpen={detailModalOpen} closeModalCallback={() => setDetailModalOpen(false)} />
-    </PokeCardProvider>
-  </div>;
+  
+  return <PokeCardProvider>
+    {
+      mode === "battle" ? <BattleField /> :
+      <>
+        <h1 className="font-bold font-xl m-2">Choose your pokemons!</h1>
+        <div className="grid lg:grid-cols-5 md:grid-cols-3 grid-cols-2 gap-4 m-2">
+        {pokemons.map(pokemon => <PokeCard onClick={openDetailModal} key={pokemon.name} {...pokemon} />)}
+        </div>
+        <PokeDetailsModal isOpen={detailModalOpen} closeModalCallback={() => setDetailModalOpen(false)} />
+        <BattleButton changeMode={() => setMode("battle")} />
+      </>
+    }
+  </PokeCardProvider>
 }
