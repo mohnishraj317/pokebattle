@@ -1,4 +1,4 @@
-![Deployed at](https://github.com/mohnishraj317/pokebattle/deployments/github-pages)
+Deployement : ![Deployed at](https://github.com/mohnishraj317/pokebattle/deployments/github-pages)
 
 ---
 # **Task 1: Display Pokémon Cards**
@@ -11,7 +11,7 @@ Each **Pokémon Card** includes:
 - **Image**: The front image of the Pokémon.
 - **Cry Sound**: Pokémon's latest cry sound on clicking on the card.
 
-### **Subtask 2 (30 points)**
+### **Subtask 2**
 When a user clicks on a Pokémon card, detailed modal is displayed with comprehensive information about the selected Pokémon.
 
 This **Detailed View** must includes:
@@ -25,10 +25,10 @@ This **Detailed View** must includes:
 
 # **Task 2: Battle Simulation**
 
-### **Subtask 1 (10 points)**  
+### **Subtask 1**  
 Allows users to select **two Pokémon** by clicking on their respective cards. When a Pokémon card is selected, the cards are visually highlighted.
 
-### **Subtask 2: Initiate a Battle (90 points)**  
+### **Subtask 2: Initiate a Battle**  
 Implemented a **"Battle" button** that initiates the battle between the two selected Pokémon.
 
 #### **Battle Logic**:
@@ -55,7 +55,7 @@ The **type effectiveness** of a move is determined by the interaction between th
 - **Not Very Effective (0.5x multiplier)**:  
   If the attacking Pokémon's move type is **weak against** the defending Pokémon's type (e.g., a Fire-type move against a Water-type Pokémon), apply a **0.5x multiplier** to halve the damage.
 
-### **Subtask 3: Battle Summary (10 points)**  
+### **Subtask 3: Battle Summary**  
 After the battle, a **summary** is displayed with :
 - The **winner**
 - **Move used** by each Pokémon.
